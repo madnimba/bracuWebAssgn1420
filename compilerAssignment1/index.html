@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CSE420 Assignment 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fbfaf7;
+    --ink: #1a1a1a;
+    --muted: #6b6b6b;
+    --rule: #dcd8cf;
+    --accent: #7a1f1f;
+    --field: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161616;
+      --ink: #e8e6e1;
+      --muted: #9a978f;
+      --rule: #333130;
+      --accent: #d48a7a;
+      --field: #1e1e1e;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 19px/1.65 "EB Garamond", Georgia, serif;
+  }
+  main { max-width: 680px; margin: 0 auto; padding: 72px 20px 96px; }
+  .course { font-size: 15px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 0; }
+  h1 { font-weight: 500; font-size: 40px; line-height: 1.15; margin: 14px 0 8px; }
+  .subtitle { font-style: italic; font-size: 21px; color: var(--muted); margin: 0; }
+  h2 {
+    font-weight: 600; font-size: 14px; letter-spacing: .14em; text-transform: uppercase;
+    margin: 56px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--rule);
+  }
+  p { margin: 0 0 14px; }
+  a { color: var(--accent); }
+  code, .mono { font-family: "IBM Plex Mono", Consolas, monospace; font-size: .82em; }
+
+  .meta { margin-top: 32px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .meta div { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; }
+  .meta div + div { border-top: 1px solid var(--rule); }
+  .meta span:first-child { color: var(--muted); }
+  .meta strong { font-weight: 600; text-align: right; }
+  .firm { color: var(--accent); font-size: 15px; letter-spacing: .1em; text-transform: uppercase; margin-top: 10px; }
+
+  form { display: flex; gap: 10px; margin-top: 6px; }
+  input {
+    flex: 1; min-width: 0; padding: 10px 12px; font: 17px "IBM Plex Mono", monospace; letter-spacing: .06em;
+    background: var(--field); color: var(--ink); border: 1px solid var(--rule); border-radius: 2px;
+  }
+  input:focus { outline: none; border-color: var(--ink); }
+  button, .button {
+    font: 500 17px "EB Garamond", Georgia, serif; padding: 9px 20px; cursor: pointer; text-decoration: none;
+    background: var(--ink); color: var(--bg); border: 1px solid var(--ink); border-radius: 2px; display: inline-block;
+  }
+  button:hover, .button:hover { opacity: .85; }
+  button:disabled { opacity: .5; cursor: wait; }
+  .msg { font-style: italic; color: var(--muted); margin-top: 12px; min-height: 1.6em; }
+  .msg.error { color: var(--accent); }
+
+  #question { display: none; margin-top: 28px; }
+  #question.show { display: block; }
+  .for { color: var(--muted); margin-bottom: 6px; }
+  .expr {
+    font: 500 26px/1.4 "IBM Plex Mono", monospace; text-align: center; word-break: break-all;
+    padding: 28px 12px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); margin: 10px 0 0;
+  }
+
+  ol { padding-left: 1.3em; margin: 0; }
+  ol li { margin-bottom: 10px; padding-left: 4px; }
+
+  table { width: 100%; border-collapse: collapse; }
+  td { padding: 9px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  td:last-child { text-align: right; white-space: nowrap; padding-left: 16px; }
+  tr.total td { border-bottom: 0; border-top: 1px solid var(--ink); font-weight: 600; }
+
+  .warning { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--rule); font-weight: 700; color: #c0392b; }
+
+  @media (max-width: 520px) {
+    body { font-size: 18px; }
+    main { padding-top: 48px; }
+    h1 { font-size: 32px; }
+    .expr { font-size: 19px; }
+    form { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <p class="course">CSE420 &middot; Compiler Design &middot; Section 22</p>
+  <h1>Assignment 1</h1>
+  <p class="subtitle">Converting a regular expression to a DFA by the direct method</p>
+
+  <div class="meta">
+    <div><span>Marks</span><strong>10</strong></div>
+    <div><span>Deadline</span><strong>11:59 pm, 27th October</strong></div>
+    <div><span>Submission</span><strong><a href="https://forms.gle/PZBzxNr9Af9AUxxy9" target="_blank" rel="noopener">Google Form</a></strong></div>
+  </div>
+  <p class="firm">Deadline won&rsquo;t be extended</p>
+
+  <h2>Before you start</h2>
+  <p>Study the direct method of converting a regular expression to a DFA from Subsections 3.9.1 to 3.9.5 of Chapter 3 of the reference textbook. Supplementary materials and tutorials are available in the <a href="https://docs.google.com/spreadsheets/d/1e5hxdjwPvWWZSK0fmAhLsy4nUMr2c7RFnPasBTMy7SA/edit?gid=607955246#gid=607955246" target="_blank" rel="noopener">tentative lesson plan</a>.</p>
+
+  <h2>Your question</h2>
+  <p>Enter your Student ID to see your regular expression.</p>
+  <form id="lookup" autocomplete="off">
+    <input id="sid" inputmode="numeric" maxlength="8" placeholder="Student ID" aria-label="Student ID">
+    <button type="submit">Show question</button>
+  </form>
+  <p class="msg" id="msg" role="status" aria-live="polite"></p>
+
+  <div id="question">
+    <p class="for" id="for"></p>
+    <div class="expr" id="expr"></div>
+  </div>
+
+  <h2>Task</h2>
+  <p>Convert <span class="mono">r</span> to a DFA using the direct method. Show every step:</p>
+  <ol>
+    <li>Write the augmented expression <span class="mono">(r)#</span>, number the leaf positions, and draw the syntax tree <i>T</i>.</li>
+    <li>Compute <i>nullable</i>, <i>firstpos</i> and <i>lastpos</i> for every node of <i>T</i>, and give the <i>followpos</i> table.</li>
+    <li>Construct <i>Dstates</i> and <i>Dtran</i> by the procedure of Fig. 3.62. The start state is <i>firstpos</i>(root). Mark each state before computing its out-transitions, and show the union for every <i>Dtran</i> entry.</li>
+    <li>Identify the accepting states (those containing the position of <span class="mono">#</span>) and draw the DFA.</li>
+  </ol>
+  <p style="margin-top:16px">Write your Student ID and set at the top of your submission.</p>
+
+  <h2>Marking scheme</h2>
+  <table>
+    <tr><td>1. Augmented expression and syntax tree</td><td>2</td></tr>
+    <tr><td>2. <i>nullable</i>, <i>firstpos</i>, <i>lastpos</i></td><td>2</td></tr>
+    <tr><td>3. <i>followpos</i></td><td>2</td></tr>
+    <tr><td>4. <i>Dstates</i> and <i>Dtran</i> (Fig. 3.62)</td><td>2</td></tr>
+    <tr><td>5. Final DFA</td><td>2</td></tr>
+    <tr class="total"><td>Total</td><td>10</td></tr>
+  </table>
+
+  <h2>Submission</h2>
+  <p>Submit your work through the form below by <strong>11:59 pm, 27th October</strong>. Late submissions will not be accepted.</p>
+  <p><a class="button" href="https://forms.gle/PZBzxNr9Af9AUxxy9" target="_blank" rel="noopener">Open submission form</a></p>
+
+  <p class="warning">You will get zero in the assignment if any means of plagiarism is attempted.</p>
+</main>
+
+<script>
+(() => {
+  /*DATA*/
+  const SALT = "Wp6WBkST90ewckmtYnVaAQ==";
+  const Q = {
+    "LqJevvlcABA57DppVuVYlA==": "C5atOu461Kp6we1d./70QSk54Lk+aV48ll9QkMj5Ha+SGzKNPcMXQXvGnBJKyiNDpYn9U5hC1V2BGCnbUa52PU78DqgCgPd6V4TQEYoDtvKo20ymzZvFzCmG8uLM=",
+    "riNxWtInLv6lXZhCPivTLg==": "+beW+6oxtrVmZ8Ua.+5YpXd1Ulm3WQG0yxvn8I9ti5BPLlubrAs3I4XEjbnJqs+9xkIsoQZXKQKgvYdfQK7E+XPCvZxzDv/1Vn6yHXuAA41lzGNfBf1TSJcYfgWg=",
+    "McxQsxpYDbFbIvidbDQtcA==": "g1m9e6zgDw10N6E5.8Vogvq+biVelLvtzbUJs5gN/O9QjdjVcdPVTGXxviD83fVfk7vCipGZl1BRELfZskkqYd8LkgCERbBP7DAhjxhnEK3ldCDCWC6VwthEwExA=",
+    "RzGvpSHpgzwlq4nc6yHBwQ==": "2MyuuZYQ9ZXHSUW2.pegKMxxwzKj97MEWIeRunfzxAuZiGwOihVw8Xr1FhCLyvRlG+pT85ImHdeRMK2dvWLzZifTTK8AY+Ezf3Jqx3fmsuwloqd/XVaobFb1+Bq8=",
+    "5OkZ0si4h5/JxzJpsu6B2w==": "GgXrnX+wO1egKgmS.i/jyajUs4X5w2oRZr6QSeQ5rfRNbRl2G8HGeyfQtlPSgILN4H6aDzJSCPcWdn5DdQ+Sv6uW/TWfUofxzhhPWi1rY7PHHXbj5aB3UOoAbtnQ=",
+    "J2yDLjGCm27VauxLRMnXRg==": "eEXn/fVrAwnJcFHt.Q46A+1qvt7fbSkHRBZjwnum7gc42Qh2VGgFdXC4z3KN8YWtvehkmCw3tqBlOweTJvXTYnhx50SHZM3nulb12csL7qAdfUNOHR0VnPCC00Ao=",
+    "Y2P9l90PpDM4Jq2Ul5JPTA==": "h0fKLw7Nl1lwY8xY.965apCZveYihvr++P5PEgqNBIKaBYMFWBUFTnL2J1g3zNEdcmqqRZZ5c98F6Y0Meru17G6cKQvbQJpRdUYvOe61oslwVo9Ez75dMZaNJtss=",
+    "icXTXu38yu0Y3n+UJm7xqg==": "xiK1lFMCPYARvmVx.xWSe5D4i2jMyuDx5FA+e/BGLy/FKFa31d1TWqJtskf8UU44KcST6qa5K8BgFtNrBbmuHa3f3aS7q83Cvv4yUZ4EQWj2wnayTDwdmhj1Jfrg=",
+    "CsOvhMaX20HS+BSoc/vPpw==": "djpEeZ30M88HNe+z.gVDBiLH8aLZ0k0Ip4o9Z/ZwTXwdIXWJaJujh4ErwEDSobXDhkYyQgnvlRPHmgQSTgP3xY1bBYLWoeF7UEZE4vCE4/A6SWcLU04PbN/xiiOM=",
+    "wCY2i9YlnGR8SXrRLbnM7g==": "BosfwrIBEdTXX/W7.I4YPtRV1LlJtI4Rk9Mg5U3KV3QCQwzKN2EFz61YraHtUSbvTZllupyDBiW5EQASVcA2oYWM6kFB7KmY8ZDJ8O1imlQUZdfw1DE5K2pelaOI=",
+    "kEZJJjdVZjtPucZpVVyDPw==": "gRTxaY7NPknQuLYv.ua9kHm0KJQBiGwoLKKg490CgmZ8m8sv4JJkvtebDf6q0ISCLRAWBxXcAym0EOAvOAA+2V8sSsRZKSuvVXDTsVeFUP1pFFjqwGXhBFSukX/c=",
+    "5ldDHrpO7YfhtA3HbBbzUw==": "Q5nc//S78itIBEYi.o44JDcI+wDXhMM5GEe0ukx0gCJ40exHK7fVNiPq/tvGodyOA9hbfhg6XkQiwRMqpzE3jC8U+8tAnJJgVvWS+O6tR2wNfZ0RXEC+RQVEcLNU=",
+    "7HOskkB3DcVgAVthTHtqpw==": "FbCa9xsubx7Y2qeY.xxBsysc0jhXfMiniykexV0VeclG5tVMrI2MZBMI8RSjinqr2Ah48xxde4+00jGWr2S48j02g+RkZBc5nQ6PXV0xcq+jdE77lYMwlke43qNk=",
+    "8U1t2QoKgLpaCBSa64T0+A==": "rlxQCUJwpi4riCQm.Onh9Ng0hpMenJTg5hEz3oafEQYXqZFmhP/6f1piXj4Vv6liT7wU3LdPpZ4xucF52PoCouOrSGYuLtkYAhw0yF2vfjut9mPnPu1ckiR/pCzg=",
+    "c+49VIpsFrBc43t3QOoUrg==": "NExD7JQv092HIX3g.uOkK/TYQFUWBqA0h9nTNZqz4CxONzS4fIBoWvvTEt+3SCIzp5qgcyzP208YG8KaCYd+17+4LRgY4sUG9p077Yu5NBKkOwpopAHxjUz4QZKY=",
+    "xTQMgZgiODHHy8M0uwLXsQ==": "L+vMQhhFXFKdtCJP.ElmT8rzCP1tZCMIKuj6faB113owwXhTEs8gIN3JARW63oXZ6u/PPv3vvcD2hTEU1PJrF8hdx6Km9ee83akNYllP/wqC5Vq7ZIMSzwYv9d9A=",
+    "IYb9LEenM3qDY66WAe0L/Q==": "GkZWAUCPu65VDIuE.Nf99fyp89fozEfRtR+dwmZ7iXOygPVx0uqBRay74ACwmIX/lQLD25N31IP5sJBOCeONjRpE0OscEMDNJ7VUdkECvlbbsLcuRoxZ8dGmIbz8=",
+    "eVGw+1kK7S9DI7L6aUUHmA==": "Zr4cPkbPzGlWXNBj.um0RZVpwC4k6Va2iuUn2wcZvD4DbJf9ZyHm+uyuSXoYw2KtzX3E17LSdqXZytbBRsRDCB8j/F8ln/GKbmGAx1RNuF2M0ROR0UXi8wZTndGY=",
+    "IBkI0Q2zNbJBMHsiDjxslg==": "y/NGSfBVD1B6CY3i.1knhprQnzndmyeMSpGspsor8xGMRPno7KM10UKU74eweeUlYd5G3bwbA4Bvvou9S6qkCaoYrCTsnVSnKYdkICbTy4NTUbTqArMA87nBRp+E=",
+    "xVhL031XsAnJZM+WoYYneQ==": "cn+0qvdzoGCMugKF.6IOksFJ+Uh0INrMy5jn8W9htm42YarpCrfPh8kvKhDwlp+Tu1pLx++sBcZ8nWU/Asp0YTFgmzX7jkyTsLEhVZKOg4+YY+kVz1FBu+MmanOY=",
+    "OcTfmVo7I///CpaFSLEqfw==": "hG4onEyIOmrdJWHH.bWEeEJRoD86QqA5GJymuFMDP2H+4xQfmVq6ZXXhl8Q6/cOi8llsGAIRfHAdH17poaa8Z81DaB93jyrgwdfBSySvVoa+FKtkBIovHCvrG+uo=",
+    "00tF4mUIbjakBt6DNCqBgw==": "M351FeJ55xM9pa38.gKpwoUcFKLDUbW3+P4s18YnRQRlP5H9NZgbGmuTKltCvCuPp1j9Pp+rqOZZYvIH4YtgEABBMTmiMR80+maJTD/uu+XCo1l4Xnp7R+4F+7Tg=",
+    "dCOJokI3Ptvmo1ugVc0Ypg==": "Exv0fyFw84eRi5B/.vARBf1W6pYsndQzEBrsRR3YGk85lhvpPtJPRSx9SOC2nTx65iEJvhIjisWvQhIErflO9S+AkLu5ch5u/G2EaU5aQ/tVPvq6/N9Tc+fI4wWY=",
+    "DPhKvnbtBv7PUXjkAjg/4Q==": "wbN2cG/OQ+1Cm+BI.Gt9e54qvgPUulAfg8J8CwSWNPtj39wBj7/Ypt3gVFv8zpG/YLJB6dz5wYjgtpt1AknqmsKlJJrobBUkE8T/QpO48EL/4v/CLYd0GEBSKkPI=",
+    "MVR9IuKIwBpEhOAD+8XMpg==": "XresPjXt76el/jiC.0SH0VCzlqLPB89/fXYCPXV3Yc+fuACabSGkRz9YBzc8gJd5Wt0WzEjESQy2/deWBedo2VEzcJNALvw/HXOOa74lN6rr2VSSVXzdY0sjHXMs=",
+    "J73A5mST5gkfQ4KkthxRIw==": "fxiQCKGPBtlZ0nbv.oQJnRiYDWWOR9Fi9InlROHov4YgdlNkPScG76WU2qxf7xYcno0TgNiTuz2LyO7fnw7veLYSUw4I8Dz7ea1Uzs5Q7CZ3tDJWgOf+KrUaYqKM=",
+    "DE5N7Whzjms/iu8dl2ECxA==": "M5T1s49W+uMqQlEc.5Zz2pGq1woteH4PpEr5nQg0uWZu4an76gHs7PTcFVujuR2wtAYFoH+snWIaae1V7x9C/BhfQaeBpt4GAkJKpn4sXUujf1x1pUQv2JpQ0MJA=",
+    "lZZNXvaMD1TZHZGcNBSCbA==": "RhB6nolKgc8G0/c1./qE3xyNp7j402ZFQXHraF2dzDIZAVQ1ytw0udExFBsCQt6zbQ2tJ1z0BwBUSK6ypS4oIMYHwAQRAb64QEqx+nm1+WLHrz4ALP8PyweR5+as=",
+    "76l61bPCWbq15LwqMw8gwg==": "ccDJaD+gKGQsK4ea.6OrfiNvqfK5TbwR2ZFn9EcrSd/EfNe4ym7Oy0B4SARrt/RTYYRrAKQLAZu5DUUzJgOKzQTc8YqNdJWIxpBVqgTI94Z8Ad2JDrekfdjkMm3E=",
+    "SP+vBa/KMA1JSnxbU3+4cw==": "HDkY5AVqpMDHDEOm.gnyR3SwU3Iwm/hDfOsGBIdQy6xtNtzNp0T/B9UR/Q9qaMbCpzklmCWTWAtcU4Nh7rZyTlHiU5fy1AHsHwBfsSgqK6Xx5lWESjjP9Vom4ADw=",
+    "sAeYOXFg4Cjnou/E4SR3dw==": "ajPlMBv48iYW1gjX.SoC9pOp/sE6KBFUqsXoIjRuVgCe94MWh33ATQNTDZCm2Wy5eLByExKt/TDBxyFkFcVmdt8wOC+TavNUGP6/ieierWYCJFvjGCsbKh3/tQ80=",
+    "Ni9nz6WmbXbSPOkenQj5wg==": "gj+D28Wo2gTWVdwi.WScT2zg++v7VhxDD0r8kmT8Q2GVPAx9WzmNxtf6dOFy0ZECFZ603SYKdGRvec74GRLLIYCQYtduMbVecWnJbwyDbXxwDsiIdIPUMfvaH/zc=",
+    "Ddp9x9/WxnCH2uE2JMzi/w==": "g7Dhs61Yxlb2w0N/.JpV1HAEzAKmHK357rBYBQPPRWl7J8pgO562LDDALDrENKFT6WpZoqjREP6AvDKXtD6BKyTx8BH/wGzQgcbf4iG0/JBrAuRTA3TiBREar2o8=",
+    "BK/EqAOuphiwhQS/47flhg==": "H37DzNbSFGWly0MC.iHVdPYr8esIL7J2ZQMNttsxs4NmCP3CsYf5psIm1zW57AuvcLMXGf1QCKRBEK9em1D0BsvK3yVRTBQJnxihsXtQ/PqWqzPdMIR4d5Nd+sCQ=",
+    "jfocy+ZVSkQHbjGfJXBsRA==": "rpW79m0+iReLtZ9j.EXqWrKStlMYUXkhjoNANGsiNDQHB7YxyTCc7IQr/YsWvTF6uhDQTpxIDvbTKZdRD5dkvC6mIBJiX0gHxuN/KFzB190wvNzu2yA+f2I7sJn4=",
+    "cD5N03GJssGu3sdcHvT07Q==": "F5HlnYpzKtEjrwhz.TqCBQeuA9nTC9awlVprh79JMX/auCoRVkmfhBtZfGLN4zNgXrIhIQZZDHtgW8Z9Ht54aJ+EhTDFHMP/E3KR5V4TySuCB+2oshmwDdDTJXaU=",
+    "uBe90yeI37acxbC5a8pLwg==": "7RYHD0LjKfnhhj88.bFXBMOIhlVJRz1ccr04A5mRAk/pxVi16mFWsSrmBGUDYHOs9c32gOk1z21xDeekC80kRM+RiD84XwHwgEmAq1sJUt428QDiZIO2WFiio47w="
+  };
+  /*END*/
+
+  const ITER = 300000;
+  const enc = new TextEncoder();
+  const fromB64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  const toB64 = u => btoa(String.fromCharCode(...u));
+
+  async function find(id) {
+    const base = await crypto.subtle.importKey("raw", enc.encode(id), "PBKDF2", false, ["deriveBits"]);
+    const bits = new Uint8Array(await crypto.subtle.deriveBits(
+      { name: "PBKDF2", salt: fromB64(SALT), iterations: ITER, hash: "SHA-256" }, base, 512));
+    const blob = Q[toB64(bits.slice(32, 48))];
+    if (!blob) return null;
+    const [iv, ct] = blob.split(".").map(fromB64);
+    const key = await crypto.subtle.importKey("raw", bits.slice(0, 32), "AES-GCM", false, ["decrypt"]);
+    return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ct)));
+  }
+
+  const sid = document.getElementById("sid");
+  const msg = document.getElementById("msg");
+  const q = document.getElementById("question");
+  const btn = document.querySelector("#lookup button");
+
+  sid.addEventListener("input", () => { sid.value = sid.value.replace(/\D/g, ""); });
+
+  document.getElementById("lookup").addEventListener("submit", async e => {
+    e.preventDefault();
+    const id = sid.value.trim();
+    q.classList.remove("show");
+    msg.className = "msg";
+    if (!id) { msg.textContent = "Please enter your Student ID."; return; }
+    btn.disabled = true;
+    msg.textContent = "Loading…";
+    let res = null;
+    try { res = await find(id); } catch {}
+    btn.disabled = false;
+    if (!res) {
+      msg.textContent = "This Student ID was not found. Please check it and try again.";
+      msg.classList.add("error");
+      return;
+    }
+    msg.textContent = "";
+    document.getElementById("for").textContent = `Student ID ${id} · Set ${res.s}`;
+    document.getElementById("expr").textContent = res.r;
+    q.classList.add("show");
+  });
+})();
+</script>
+</body>
+</html>
