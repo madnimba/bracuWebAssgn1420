@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CSE420 Assignment 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fbfaf7;
+    --ink: #1a1a1a;
+    --muted: #6b6b6b;
+    --rule: #dcd8cf;
+    --accent: #7a1f1f;
+    --field: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161616;
+      --ink: #e8e6e1;
+      --muted: #9a978f;
+      --rule: #333130;
+      --accent: #d48a7a;
+      --field: #1e1e1e;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 19px/1.65 "EB Garamond", Georgia, serif;
+  }
+  main { max-width: 680px; margin: 0 auto; padding: 72px 20px 96px; }
+  .course { font-size: 15px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 0; }
+  h1 { font-weight: 500; font-size: 40px; line-height: 1.15; margin: 14px 0 8px; }
+  .subtitle { font-style: italic; font-size: 21px; color: var(--muted); margin: 0; }
+  h2 {
+    font-weight: 600; font-size: 14px; letter-spacing: .14em; text-transform: uppercase;
+    margin: 56px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--rule);
+  }
+  p { margin: 0 0 14px; }
+  a { color: var(--accent); }
+  code, .mono { font-family: "IBM Plex Mono", Consolas, monospace; font-size: .82em; }
+
+  .meta { margin-top: 32px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .meta div { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; }
+  .meta div + div { border-top: 1px solid var(--rule); }
+  .meta span:first-child { color: var(--muted); }
+  .meta strong { font-weight: 600; text-align: right; }
+  .firm { color: var(--accent); font-size: 15px; letter-spacing: .1em; text-transform: uppercase; margin-top: 10px; }
+
+  form { display: flex; gap: 10px; margin-top: 6px; }
+  input {
+    flex: 1; min-width: 0; padding: 10px 12px; font: 17px "IBM Plex Mono", monospace; letter-spacing: .06em;
+    background: var(--field); color: var(--ink); border: 1px solid var(--rule); border-radius: 2px;
+  }
+  input:focus { outline: none; border-color: var(--ink); }
+  button, .button {
+    font: 500 17px "EB Garamond", Georgia, serif; padding: 9px 20px; cursor: pointer; text-decoration: none;
+    background: var(--ink); color: var(--bg); border: 1px solid var(--ink); border-radius: 2px; display: inline-block;
+  }
+  button:hover, .button:hover { opacity: .85; }
+  button:disabled { opacity: .5; cursor: wait; }
+  .msg { font-style: italic; color: var(--muted); margin-top: 12px; min-height: 1.6em; }
+  .msg.error { color: var(--accent); }
+
+  #question { display: none; margin-top: 28px; }
+  #question.show { display: block; }
+  .for { color: var(--muted); margin-bottom: 6px; }
+  .grammar {
+    padding: 26px 12px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); margin: 10px 0 0;
+    display: flex; justify-content: center;
+  }
+  .grammar pre { margin: 0; font: 500 23px/1.7 "IBM Plex Mono", monospace; }
+  .input-str { margin-top: 18px; text-align: center; }
+  .input-str span { color: var(--muted); }
+  .input-str code { font-size: 20px; font-weight: 500; margin-left: 8px; letter-spacing: .04em; }
+
+  ol { padding-left: 1.3em; margin: 0; }
+  ol li { margin-bottom: 10px; padding-left: 4px; }
+
+  .warning { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--rule); font-weight: 700; color: #c0392b; }
+
+  @media (max-width: 520px) {
+    body { font-size: 18px; }
+    main { padding-top: 48px; }
+    h1 { font-size: 32px; }
+    .grammar pre { font-size: 18px; }
+    form { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <p class="course">CSE420 &middot; Compiler Design &middot; Section 22</p>
+  <h1>Assignment 2</h1>
+  <p class="subtitle">CLR(1) Parsing</p>
+
+  <div class="meta">
+    <div><span>Type</span><strong>Self-study</strong></div>
+    <div><span>Marks</span><strong>10</strong></div>
+    <div><span>Deadline</span><strong>11:59 pm, 20th November</strong></div>
+    <div><span>Submission</span><strong><a href="https://forms.gle/7viEWWQyZ2kQLXgU6" target="_blank" rel="noopener">Google Form</a></strong></div>
+  </div>
+  <p class="firm">Deadline won&rsquo;t be extended</p>
+
+  <h2>Your question</h2>
+  <p>Enter your Student ID to see your grammar.</p>
+  <form id="lookup" autocomplete="off">
+    <input id="sid" inputmode="numeric" maxlength="8" placeholder="Student ID" aria-label="Student ID">
+    <button type="submit">Show question</button>
+  </form>
+  <p class="msg" id="msg" role="status" aria-live="polite"></p>
+
+  <div id="question">
+    <p class="for" id="for"></p>
+    <p>Consider the following context-free grammar:</p>
+    <div class="grammar"><pre id="grammar"></pre></div>
+    <p class="input-str"><span>Input string</span><code id="w"></code></p>
+  </div>
+
+  <h2>Task</h2>
+  <p>Construct the <strong>Canonical LR(1) (CLR(1)) parser</strong> for your grammar by performing the following tasks:</p>
+  <ol>
+    <li>Construct the canonical collection of LR(1) item sets and draw the corresponding GOTO transition diagram.</li>
+    <li>Construct the CLR(1) parsing table, including the ACTION and GOTO entries.</li>
+    <li>Determine whether the grammar is CLR(1). Justify your answer based on the presence or absence of parsing conflicts.</li>
+    <li>Demonstrate the parsing process for your input string using the constructed parsing table. Show the stack contents, remaining input, and parser action at each step.</li>
+  </ol>
+  <p style="margin-top:16px">Write your Student ID and set at the top of your submission.</p>
+
+  <h2>Submission</h2>
+  <p>Submit your work through the form below by <strong>11:59 pm, 20th November</strong>. The deadline will not be extended, and late submissions will not be accepted.</p>
+  <p><a class="button" href="https://forms.gle/7viEWWQyZ2kQLXgU6" target="_blank" rel="noopener">Open submission form</a></p>
+
+  <p class="warning">You will get zero in the assignment if any means of plagiarism is attempted.</p>
+</main>
+
+<script>
+(() => {
+  /*DATA*/
+  const SALT = "iROgIdyuIvCmTF/ckK2lJw==";
+  const Q = {
+    "MyPDiLY3L5o03qFi7LlesA==": "bj1u68mcWn1briR5.xaEzl/c77gbIRVEuels/YYjiTqMqB3D2JxPnCfNlVuKwSG+vucdQS0/0S19rK359EAm1g7PiyVI0XOtRogGfQzXF7WSFpfSLHINc5LEReDTzBqsDIkOyc5eZ/37/t6ir/SjLvKnM63YL/SjtHeR51z4iv9b3Q8sbgglrM7Ruk0aYKHMpkRpUtyfmPYiGaSJ/",
+    "uI5XvCIW1bjRjNzG17veng==": "Ndey7YuMe5A+rEl5.NXPLLoxca2jqIDLWz1C+c4JiEEj6uSwqY3KM/yWz+EGKpJoJb1bt9Zr2lPY6pJxRbJ+riMmSGlcP4+X/myZXVGzbMLNJ0e1bLIDUUw90kqAnf8VR27I6mgZs164yOEv3vz4npZBkbgssslV+16eBvNTQWlbeNbpbVIzCJOV+nx+KwY2LTPApv3o8bLNP7Pi5",
+    "1Ywiq6wS3umZFkHEIO/F5w==": "hwZivewoSuYTcWrq.6ln/QDZBS+VNsqNzwwxsD/jzsdt1eeZfiVZXiNyiU0qGaL9givsEbxI1vtbhCYZWN0wTECS6HjPIUQ26btg1xjNC8wzgbIxq8L5JHKDmyy5hLBFYefEzXGswbxQKDE56IGL0Vl/LP8L8lCbdIDsBjVUdK7RQ+KFsi1MtFvkDHT8Vrgj62Sljz0320Bo+N4E4",
+    "L0dipWhu0wG9DBzkfmhD6Q==": "gEqbI67NeLazq6gO.zdv+GzHFEOwi4Tob0pICrR3ovHBXbk+Iv3uBbxRwkXaJvR29lD37JBfliCedcBXPETFieQDbUYKBorvQpAXPAjrxA4cgGyczpycaLtij9OZ58hZzhWmYTHDkB+Wwt1ePT98WuHh1qafguF/P+4oqQanGi0HqvkQVvqhgwAy2svru1+QItWNGuKMH6qEnXtqF",
+    "2lWjZMTI7a11Fexl1wJWgQ==": "gadaMRuzLVGkx0mN.zRyI5dkQXuJ8Eujvx8k0v9VBTOiaVOrPrHWQh3El0M8R9mSW3Z058V00YmRVacac5QLUa0CpYV0SrG0SIlRxKgDWKzBiAB0aNaWnFhOF1Py98oK1oaFP3WaDpo5sPeGu6rUe2rG7QEYSHKobAdMIRM/IspeGrL/pcNPTgrwGVJegulb+vcctjoydEj0y+XGw",
+    "HJPzw/dWXyfQmc9OBiXKLg==": "MxRp11ItuYJPTK7p.YelfYRNhItdK+yx6qwzO9eRx47IArDcCm8E8ZeC20yDzMkK45BH6XOGzfHVvvl3HrDE/o7Sb8Yl9qGPwsrOat1irPMjxqjzhe6nh5TUz6QMgwj2Paetp1LDNl/VzNbnivORe0Mf3WigqooBYi/pImC0a/aMBZ+uagoYHxglIiYZcJ/tVMUMBUz16J951O+s7",
+    "1slgh/7jDAKemDjouasu+w==": "DGTc2uZEqYICo9EJ.UmxJOFoQFQqld5nF6lMqsV0DeFxQEwsYAINkndb09jui+xrgjkA5/dx2aHk9t818IXodqaTY7M6o3Lj+ZZ4kTTYSAamp+l9+4dRFgOHtTY/1L4D8KkRdoZCuzHGGCTEKllDj1ksJsxT/PmLf1IFnLExNHSqDGiHbigNCm1bE3j/XIdrp7s98PLUqS9acw5Qa",
+    "ILwIYj1544T2e5uiRgol9A==": "GdSSeQ1d8/SDCDkr.46K8XAc8CbjYjWbfhiGFuug0O2xcZL0fftQ0tTs2z3G22pFzCJrbRAUFW3KuTXgH3FrxYekwaocqWCeye/Vg2k5gCSL2kV3GhTmbl6vucUVCsM4r4WLir0/BFA+H8i3V2oR/WBzckUvpyKEOwqRmk3AqPD1OMl6pdWfkg+1THpS47KtursNYtisu1pJEXYuM",
+    "WSTf+Ijf5W99Ay5jyV2utQ==": "D+OfUJot7ig+MS60.MoiQZ3FV4ogKT07bXfZu5CA9U71UEVqm+9Luu4WRRrqzOGwy+VL4u8X2dTQDgPopf3J3yiebwYQ5B2JhvL31AtRBsoPhOk3jJO1EdzYJfhI+upvYiyCQwT+xlIm3zhOf1soDHj/KMhqAJuZyaOwYzNPuChmUVl4sOkpZY1AqaXN/Iux4/W2wSaRTbJouW7nC",
+    "P5WcFII88bVuqVqdOqTmYQ==": "dMAWEq9YDTvUxZXl.vEqwmAea8AxG9FZvyKsJe2Nam9lcULV3RViHTEyJ4EKSY7Ia9gfneO+h5T4E45UxWigNNuHtorTktrlR2LQfBT0xiAWmpcFvUV+mOfZDa+9oaplxZ7C6M4UeLafGTCag++Uv5af9+HJjsBOGA32o90KME2/gh8sNcuusVOZu6V8jzICD64hnQrotmjaZPkPV",
+    "nWWKU+Bie7OiFkpjxQEAcA==": "Gc/g1JynrVP5C5YP.tb4sDtqXPcawiJd+UIE0Vslu6B6mJc+9nBviRiuvpEkhE/WdObEqFvygCxl88ZVfLnPiOj6T/ud4gttYTg1nQWXcCEcCXMOo+biYv36OE27xVGZNrqbBnMZFlsXbO/I4z7Uwv5dDwGaO38CKf6381/GBPjqBa/mYLc1/zoHxjlfmR1z3gU/GSfsMzfUfdHx0",
+    "GMiFd38he3v1bAftjRQaJw==": "H6W2W3OEypatGr6/.tsv7EN685DDMKkPdM1ZCB/3jgl/maj24WRpV4nMD4rciEpNdkq/hwmFUxUcfw+0ycgu7bKyB9wA0fM8MTRzcCoiaiM/q6SaEO6c8jIEqs8T7+yU3D8MVAEDHSPczwfM6RutTLbeUO5bRwG8fJOkh62vKJj+K5mUbEEikb7BB+Df8gN3ccXc2WOTzHq6VdxfL",
+    "yqz/gECenPidSsAYDGRpvQ==": "6/Y4CEnOQkwnY3tz.v/h9MzvX3yFG2sHlMi7rPVQ8QUV5y/jngXDOyL3pUTzbSpQJhd5TmoGe5LaslJXZGahpYYaCd+1J1X0Fs6S5ourMRw2WgYVSOHJuCj5aXi8fmkyxqiqkJkQ6xlgF4a+22V7vIndJPlrqvwlvBrrOsuYZVV6La4pNylx0FM2KSM6an2tCMTSMJJrQ7TfjFLyr",
+    "nYg0HIWMxFzZALMTHK541Q==": "sOBY5e1vRySoNXi4.H+b+VU33mysRW+OBaJXnd0ig3VVIPFEjDfEres3FxST5ld+zRLtdybPMl+pI3O6L3BJq8NMSgVPfb5jz78jL9xcKMllaf0wF8uDquVo7Wbl86u6CMmVXgt6pwgiLzXox/2BNY1YRPQ7jFUiYu+wmaXHquDKoW0R5a2SeedcT5umq5f/RiM7kn3ldgNe6Nx/V",
+    "ZFukll9oPt43xr3MXomB3g==": "zleDzYynJzDN4IkD.krQk0H9UNavclFviam/+Eyp7gds1ZSY8/RfyDxunET5fkF6fVofvWZ9UBkIg8Iy8dr/JV/iAdEaORHJoB/LSjCWvZUXj5yy2RvXWmxdfvJWkH0n/vuJ3Ik/reVMOMLep/Z1m2tGTi5VGkW/BKmxOlrTSrHh+J06T7OEMKMi3d6SlUIm9R5sZzwXRQ0uyC2iT",
+    "bOtKi6I6YCbGH7/PQB+7XQ==": "wJCTyHP7hMM7DSJO.u7DSfEzd6tlrxH2B3BoEQmA6qbTD1hWBBYK03vEFCi2S0TP2ZQIJekZ8gKVYB3xsiSlUmWoYMDt8P7EB/jbvrr9ODuFCX9zi4Sip18fb4O8wG9TSgvTBz+I/dqipGFu7L3yrJWPHJ8eedVor4v8zY3BldVLuv/DhD5OqC1K9TZPSD2TAkZH276hmf9qlQyJG",
+    "Db5F4EoXi34MDtniIqgAzA==": "KoGlkG+k5alAgXQz.TfC9Rtl5q8wc5UOFOCGE40mfMcWEkI0ju+AJRduMEqN1GL5S5CWw0FeRfZz3tH1ODJKLGGqafBKaurlcLLFD1xSf7P9G12tXyrlgyjnmPZOBjhGeLdDrVER2JydZwh28vri4svfvSDThYBnu+gCW/uBdx9tKAezM9j52G/U0Nf7tpi0q8C0NaqNLEU6KSbiC",
+    "bzN74NuJJzrvAz20Gjg01g==": "5EJGp6DzIVpf+dem.mEJ0bFrIopXtZrowmY75vwa63GwlQRuYhd+HrDkMO9DPVqVGvuXJHzsjubA68sBcounhFa8EXqEkp1ZhPyj37wZh6c6ACMS6ftVzkpVF0xRexi63MJ23xXn8ze43ktW8GMoE9AkWfCCNPA69TaieEq0wrbTyeJSTSqdDws24Eb/2LIgGjLvL+PW/O/D9TSw5",
+    "1isaVZcZkeZiRZemgWzELg==": "PkD7VeQ3zM8UzdZ8.4CyiMUrSPie2IviskCLPHN+FOv6A//zzpI0huQD5P3Fz5TRqmu/ED/Qy+Nmk1g4B39/frYR8dRh79XphtnV6o/lFGAYUXylWrlhk+xwySc2XzKDeXTC15G/ubQBIUhlWmOZrFev7sdegKcjEtQgBLaVyqmc/o09OtTkmAh3n+ZYPbzuzPIAW93EUl91GaOth",
+    "FhNwk+/xWI+IlwWvKTnE9w==": "eJlu6x+BheUN3nhZ.F9/L1uIXGG5EaRrMjW3p9gnVM/L4tIr/zLTja7y3c/eLBwc2+A46FCE2GAw+02VXVGRZxgq5JA1Ny+P8uE8UtZlfZtFR+tAtZ9tj5ylqVi5aqztkKOUQMWLMbW92t284DYmG/tLgfvdMNw+E6ZYjtHLzaXIXL83PKfJ3PkG0CMsZFpV7bKdZ3FZBqcTBk6EP",
+    "PliA4MBl3WqRjxjbMKPSAQ==": "M18zJrjJ2IuPMh2e.7a8QsBmxhqJgHCS72ZPxOMHELu25gr3ndCNtfjdefEkOCBXBsD0pXFh3cNOPKOUsETjn+cqrs/+GdwV7XNaWAXaX0KilNqSYd9gG7EZvdi71g2qOQYLZKu0BUr2NZWd6hBy7x9VWzKIOVYbfPVMfvaYMhx4UkLAIk+IMTT3T7Wivb1wR+aSC+OF1Ard/zgtB",
+    "0GBwXlbYUsqHN6WerE/zWQ==": "JABl3AgcnngV6UD8.M8zGqi3eaDKkZXNBQMIQ3r48EVgk8KjBKVLU0STORHq6l6ts/yj6GfxoVPODFfAamGnQQ9TrMVbdUSeL9WBnYHjXtvKe2ZoOYnEd69g3H9KvzfSDoY0irOD61GB87vNp1KOs2tqFJftei+oAlp35MYGsNMWU+pEAqvf6d1XhN6jzLbFIW2eIQ4xL32hm3JB0",
+    "gyNiOzQ6GJnO85GVtxaS8w==": "Xf/UcjJBSakZRqvv.xcZi1EaYkRB8wl2lWcgFNPfKeLrR3fVRHswp/VWCZaucr3okIkjooInvnr+/5TvLOmL9BoinMABqGtqV0SGhPUiXbJWQ5nz712oVOZ4V+0uxYBbKOJ1Lq+AT1B9LjaOX4+rviF195HCd+1JUddvPkCaM0FigmB8SAZU2m8yB6pSzejf5mWsSvHK5xwpqPUMb",
+    "FPgWE50OmDsb4docMKbQow==": "AVkjJtLYVrae8sr5.qzrHtupDoJWl7zq2o2PNXTaUKD8ZVdXJHslDLG4F1yrQWQrcS993U8CE2aQATVdq9ip0mT2fenE+iIgacolRdLCu+TAlpNDRJNE0djfPcJuP0KuSUFJO55/U7vVd3ny69tl2VcvTl6m86BkJYyvOU3gMqGkWHxRl2B4s5UXXi68Aw3bX4aa6T1h4yVonFBT3",
+    "YFVOfKMxN1hrAzjnpwWC7Q==": "SMgVzl+r+LmnpOxn.tgfp9b6m9PiEtKj33Yn1npPevCt07wProz0gajFsWjTcudEFPIkKdc82d/rbYaa7hpwgIuP/OL2Jn/0oekHn2CBKPmNHlS/rFoURvoXbRaXY6izgSj0El3QNN5WFi3SyDVuvQDQ2uxvfWXaBipgTeRBvyYdNDhg9uBpNjlFUgLk6KcOITyI3fkbXHPYlTKuw",
+    "TYB8RRqA3OYSygV+hkpISw==": "TyiB5XW1GNH6j05l.GcsgTIqZhp3dSDzINU7Vs4xw2rCPr9J/kVnCU+HAU4ziVwH4xNR7LgkeCPN4z04wtlwH2SyibXpxZlMJUKUbKZXLwh0ub5dnuaezM8+r32XecEEvtmH0yR3rkpMSIQCZ2ZrSSh3oNJHGcGxZM+m5daAW2arHEZBkpbrWmScPDb8cKydcUnY51hx+Cb62aMtD",
+    "zC82yoxxcQve2xUPNkL7yA==": "WK4G+kFKHg6fUwiF.UQBCpzheLKkz3S8LMjvdJx2MxZa8lE91K80MDOxqGl/THZNQiidzOPSELQOB4UbpgbXh1Y9FwK5+mB8H1gQJN30ot8nO9bGpofCn0AAfcpGsIhQ0zQt2A0PriKo+km36kp7fSK9/Wwl11VDz8++iVbpLLZLrFTEVRCPEOyv7SZbRfPEjhh65YWfbfoWObiml",
+    "7j6GkTlMGzl7rXEvVNHS7Q==": "x09HIKWbSF8vLalP.71x+WcDLKuG0YdqYDVBaSkVrOJbbnXBQ59M+mxTd1I23xme+wU2IX+N1sIlPtepohk8UKEW+PvqS8PwmaztoedqVZx+g+nZikTi9Gi+HSZxxnUzxr8ahAqngPmxWqcx5NNBdb/qWeNQuq7SGP2ynHL0oAfv1YFXy6K6yysK8dh9rsm51giqtGFVJqhr/8Ahs",
+    "StWfzoLM8lEy05QOQwNhTA==": "SMAWbx/hjEdH36B7./nQElA4D2oSCA8TcNJiUXJGKapWFBo3uQH1k4YcBkjjQc9+6Kv5bS7Y9oSbA2zXJQ/xHHzL2c+31O3YapgO1U7+rBkdheMq8iHqvMeoAbqenK28t2BOmNmnYY6S/mHR7FGJFPtk1ILdQ3QMOi17vTyqVtPNH9Hb/nhb26FrnEDKqwoTdI01ddn46ILEFKnlL",
+    "1Ce8DB8xnsgQXJX3aEoqqw==": "AR5LAdbkf+z+EDmB.cNvD9a6WMTJXcNqobKYJLnNbNvmWELTx0q/YzGPbUUZK2g0kS8cbJkHeiKtnZkTziSV5dc0pmkcR2s4neNrOnHuN4WhYFmhIDmI0fI6LeOJm1Y0h42DyTGYcfR6/6TVsREQLS1ZL5vMNhC7MhlADilLZGyJCJZRv9jUywtj8FmukdrMLWYUEFvO8PxXIR8+Z",
+    "TLZdnZnCxb2KgHOgZqLTtA==": "EC80E7RS/p/G2q55.oswQ+OmW87lRQgItTT3mQfFZC6IyLJerdLEeJbeVSrnRL4ynBKHa1NqXSymof//NlDfmjMh36HofmhmpVgADkadnvyERwkttRbezxjdTrWQ4O3DoVeRJ30z702XTmTXe5jRes58oOfAxFBk/BlV6ylHYS1ZkEgtdwA/GVvMefHJz9nYqxVyYgmKp58MRSTPu",
+    "6Snrd8fjN2WyOJN9i/FrSQ==": "7sZ8Ddf3nzRxlPV6.D9SIWsL9iszcVgf2rUeMRakBYXREx0WcclOt7wwddMtVmVDi1tnZaUgFzpYTIQp3ncedELNMKSq+Ny2s4UYNd4iSR7jxWPfimAN7zOB6HGe4YWgRUIxvq05nmGIYs2BCI57bmDlAPXpf2LXQCuQ85HPhyCfrzs5IIzD05yVKrGzEZCwAE7ftHQD4XgqO/lOY",
+    "QulJzjJQxj3yg1h7Ua4u9A==": "O+6eawC/hi1tOfxk.tgwO427YXnz3B2IcWODholOBPojRXxHVdgBX/8drIk+/KS166Fn4Im2hopRAtfroc2pjDFLpKer3b6ce/HQfyYwlnPlpWWflXM3VCPveSOxSZAng9jdUXzhhsJaveTF5CdcrlpnaKzK1Mx6iFUuBP0i+VkGC5DdBgEEXfLgLHt4Zt95u8oZDhryAIemT6YGl",
+    "9FqSJKGAD/DBfejSfLP+Hw==": "TiAs+A7npynZ05Ar.ML7jdpNmw0bgo4rhBeh8RPaQZUzplTdkRqIl72J8aDpJORpD95h1pvt0HL0VF8iXzIp7TnNVfq518cIVj0yaQyEoH06rSc3DrsJ/6ze/i6RQjuL9qNsu5Wx3muuSf/mPeiQXQHLXlpfAzM/S8jCQ/rJgULkcLTFbBYGqTyV6+NIFOik2fk7F66VJqG5rLeN0",
+    "QKddgfVHTs8Iz7d7Z9LVng==": "89/7GoHF+3I2MDSA.THiqJKDvGXCUiA39HEHE1JAkrFTMOR8MjsnmfTP/MFyjTmHRwcVkwwIheH2qWVjdW7pXvp9JP1yZJgMPmoox+jeY/dpVBEZZ4520E4N+Dcpl0eN3P2N6cJFD/GpRFdg9U19Qsfm0Ht4CoNHDZzbaladBv2xC3rQgGkNPBg5PNE1p6bXStNpCm7YhNDpDZF/M",
+    "vKrgZTskR20Ecbjm3dEQNQ==": "57jf9rsaN1ItyxdW.fHnWzwNqqiRqqaTUHW6gd0LXVkFiDaaomOsDM8SBNnhIg+ZuiT80WOn7FxiLCPVyJa3FqddG+D3garfYKFeffXO7THzkokDcu3vjHPS/pAeTuH0q6kMms2MRuKJCZhJz3x7hkBlSKj0+liijO7dbAAoLZQ8H17I2AhZoN12iCAD5U4Cj7iLUtVFh9dRCKm0m",
+    "q02iK1IVl1YomjfsTg3+jA==": "Sx/76QEf+nuW1TRS.axQwr3JCEWxiFmiAD0HFXPwHUDY0ftegmzX/bR0AiZYF6lhuOW/7aeFHbR5XaWDjZpXBM6ddNDkRzrOtWqIK0Z24gLhsIod4DHWomYT79MgCcCRoUQPk8eM392MPMYYs/CVgYK1qPqq+eqLEfBYJXRnLQlY6s898U6hNg5vaPphNuvRfTtLdw5VrwaRfGATZ"
+  };
+  /*END*/
+
+  const ITER = 300000;
+  const enc = new TextEncoder();
+  const fromB64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  const toB64 = u => btoa(String.fromCharCode(...u));
+
+  async function find(id) {
+    const base = await crypto.subtle.importKey("raw", enc.encode(id), "PBKDF2", false, ["deriveBits"]);
+    const bits = new Uint8Array(await crypto.subtle.deriveBits(
+      { name: "PBKDF2", salt: fromB64(SALT), iterations: ITER, hash: "SHA-256" }, base, 512));
+    const blob = Q[toB64(bits.slice(32, 48))];
+    if (!blob) return null;
+    const [iv, ct] = blob.split(".").map(fromB64);
+    const key = await crypto.subtle.importKey("raw", bits.slice(0, 32), "AES-GCM", false, ["decrypt"]);
+    return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ct)));
+  }
+
+  const sid = document.getElementById("sid");
+  const msg = document.getElementById("msg");
+  const q = document.getElementById("question");
+  const btn = document.querySelector("#lookup button");
+
+  sid.addEventListener("input", () => { sid.value = sid.value.replace(/\D/g, ""); });
+
+  document.getElementById("lookup").addEventListener("submit", async e => {
+    e.preventDefault();
+    const id = sid.value.trim();
+    q.classList.remove("show");
+    msg.className = "msg";
+    if (!id) { msg.textContent = "Please enter your Student ID."; return; }
+    btn.disabled = true;
+    msg.textContent = "Loading…";
+    let res = null;
+    try { res = await find(id); } catch {}
+    btn.disabled = false;
+    if (!res) {
+      msg.textContent = "This Student ID was not found. Please check it and try again.";
+      msg.classList.add("error");
+      return;
+    }
+    msg.textContent = "";
+    document.getElementById("for").textContent = `Student ID ${id} · Set ${res.s}`;
+    document.getElementById("grammar").textContent = res.g.join("\n");
+    document.getElementById("w").textContent = res.w;
+    q.classList.add("show");
+  });
+})();
+</script>
+</body>
+</html>
