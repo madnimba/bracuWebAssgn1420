@@ -68,6 +68,7 @@
   #question { display: none; margin-top: 28px; }
   #question.show { display: block; }
   .for { color: var(--muted); margin-bottom: 6px; }
+  .for .set { color: #c0392b; font-weight: 700; }
   .grammar {
     padding: 26px 12px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); margin: 10px 0 0;
     display: flex; justify-content: center;
@@ -222,7 +223,11 @@
       return;
     }
     msg.textContent = "";
-    document.getElementById("for").textContent = `Student ID ${id} · Set ${res.s}`;
+    const forEl = document.getElementById("for");
+    const setEl = document.createElement("strong");
+    setEl.className = "set";
+    setEl.textContent = `Set ${res.s}`;
+    forEl.replaceChildren(`Student ID ${id} · `, setEl);
     document.getElementById("grammar").textContent = res.g.join("\n");
     document.getElementById("w").textContent = res.w;
     q.classList.add("show");
